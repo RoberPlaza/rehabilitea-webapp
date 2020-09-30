@@ -10,7 +10,7 @@ import (
 
 // RegisterEvent ...
 func RegisterEvent(c *gin.Context) {
-	var userID uint64
+	var profileID uint64
 	var gameName string
 	var eventType string
 
@@ -21,18 +21,18 @@ func RegisterEvent(c *gin.Context) {
 		return
 	}
 
-	uUserID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
+	uProfileID, err := strconv.ParseUint(c.Param("profile_id"), 10, 32)
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	userID = uint64(uUserID)
+	profileID = uint64(uProfileID)
 	gameName = c.Param("game_name")
 	eventType = jsonData["event"].(string)
 
-	if err := controller.RegisterEvent(userID, gameName, eventType); err != nil {
+	if err := controller.RegisterEvent(profileID, gameName, eventType); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -51,15 +51,15 @@ func GetAllEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, events)
 }
 
-// GetUserEvents ...
-func GetUserEvents(c *gin.Context) {
-	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
+// GetProfileEvents ...
+func GetProfileEvents(c *gin.Context) {
+	profileID, err := strconv.ParseUint(c.Param("profile_id"), 10, 32)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	events, err := controller.GetUserEvents(userID)
+	events, err := controller.GetProfileEvents(profileID)
 	if err == nil {
 		c.JSON(http.StatusOK, events)
 	} else {
@@ -67,15 +67,15 @@ func GetUserEvents(c *gin.Context) {
 	}
 }
 
-// GetUserEventsAtGame ...
-func GetUserEventsAtGame(c *gin.Context) {
-	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
+// GetProfileEventsAtGame ...
+func GetProfileEventsAtGame(c *gin.Context) {
+	profileID, err := strconv.ParseUint(c.Param("profile_id"), 10, 32)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	events, err := controller.GetUserEventsAtGame(userID, c.Param("game_name"))
+	events, err := controller.GetProfileEventsAtGame(profileID, c.Param("game_name"))
 	if err == nil {
 		c.JSON(http.StatusOK, events)
 	} else {
@@ -93,15 +93,15 @@ func GetAllScores(c *gin.Context) {
 	}
 }
 
-// GetUserScores ..
-func GetUserScores(c *gin.Context) {
-	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
+// GetProfileScores ..
+func GetProfileScores(c *gin.Context) {
+	profileID, err := strconv.ParseUint(c.Param("profile_id"), 10, 32)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	scores, err := controller.GetUserScores(userID)
+	scores, err := controller.GetProfileScores(profileID)
 	if err == nil {
 		c.JSON(http.StatusOK, scores)
 	} else {
@@ -109,15 +109,15 @@ func GetUserScores(c *gin.Context) {
 	}
 }
 
-// GetUserScoresAtGame ...
-func GetUserScoresAtGame(c *gin.Context) {
-	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
+// GetProfileScoresAtGame ...
+func GetProfileScoresAtGame(c *gin.Context) {
+	profileID, err := strconv.ParseUint(c.Param("profile_id"), 10, 32)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	events, err := controller.GetUserScoresAtGame(userID, c.Param("game_name"))
+	events, err := controller.GetProfileScoresAtGame(profileID, c.Param("game_name"))
 	if err == nil {
 		c.JSON(http.StatusOK, events)
 	} else {
@@ -128,7 +128,7 @@ func GetUserScoresAtGame(c *gin.Context) {
 // RegisterScore ...
 func RegisterScore(c *gin.Context) {
 	var fails uint64
-	var userID uint64
+	var profileID uint64
 	var maxAllowed uint64
 	var gameName string = c.Param("game_name")
 
@@ -139,7 +139,7 @@ func RegisterScore(c *gin.Context) {
 		return
 	}
 
-	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
+	profileID, err := strconv.ParseUint(c.Param("profile_id"), 10, 32)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
@@ -159,7 +159,7 @@ func RegisterScore(c *gin.Context) {
 		return
 	}
 
-	if controller.RegisterScore(fails, maxAllowed, userID, gameName) != nil {
+	if controller.RegisterScore(fails, maxAllowed, profileID, gameName) != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}

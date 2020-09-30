@@ -5,12 +5,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AddUserRoutes ...
-func AddUserRoutes(path string, group *gin.Engine) {
-	users := group.Group(path)
+// AddProfileRoutes ...
+func AddProfileRoutes(path string, group *gin.Engine) {
+	profiles := group.Group(path)
 
-	users.GET("/", api.GetAllUsers)
-	users.GET("/:user_id", api.GetUserByID)
+	profiles.GET("/", api.GetAllProfiles)
+	profiles.GET("/:profile_id", api.GetProfileByID)
 }
 
 // AddGameRoutes ...
@@ -27,19 +27,19 @@ func AddProgressionRoutes(path string, group *gin.Engine) {
 
 	progressions.GET("/", api.GetAllDifficulties)
 
-	progressions.GET("/:user_id/:game_name", api.GetUserProgression)
-	progressions.POST("/:user_id/:game_name", api.SetUserProgression)
+	progressions.GET("/:profile_id/:game_name", api.GetProfileProgression)
+	progressions.POST("/:profile_id/:game_name", api.SetProfileProgression)
 }
 
 // AddCreationRoutes ...
 func AddCreationRoutes(path string, group *gin.Engine) {
 	creations := group.Group(path)
 
-	creations.GET("/user", api.NewUser)
+	creations.GET("/profile", api.NewProfile)
 	creations.GET("/game", api.NewGame)
 	creations.GET("/difficulty", api.NewDifficulty)
 
-	creations.POST("/user", api.NewUser)
+	creations.POST("/profile", api.NewProfile)
 	creations.POST("/game", api.NewGame)
 	creations.POST("/difficulty", api.NewDifficulty)
 }
@@ -49,10 +49,10 @@ func AddEventRoutes(path string, group *gin.Engine) {
 	events := group.Group(path)
 
 	events.GET("/", api.GetAllEvents)
-	events.GET("/:user_id", api.GetUserEvents)
-	events.GET("/:user_id/:game_name", api.GetUserEventsAtGame)
+	events.GET("/:profile_id", api.GetProfileEvents)
+	events.GET("/:profile_id/:game_name", api.GetProfileEventsAtGame)
 
-	events.POST("/:user_id/:game_name", api.RegisterEvent)
+	events.POST("/:profile_id/:game_name", api.RegisterEvent)
 }
 
 // AddScoreRoutes ...
@@ -60,8 +60,8 @@ func AddScoreRoutes(path string, group *gin.Engine) {
 	scores := group.Group(path)
 
 	scores.GET("/", api.GetAllScores)
-	scores.GET("/:user_id", api.GetUserScores)
-	scores.GET("/:user_id/:game_name", api.GetUserScoresAtGame)
+	scores.GET("/:profile_id", api.GetProfileScores)
+	scores.GET("/:profile_id/:game_name", api.GetProfileScoresAtGame)
 
-	scores.POST("/:user_id/:game_name", api.RegisterScore)
+	scores.POST("/:profile_id/:game_name", api.RegisterScore)
 }

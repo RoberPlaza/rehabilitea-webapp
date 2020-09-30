@@ -8,9 +8,9 @@ import (
 type Event struct {
 	CreatedAt time.Time `gorm:"autoCreateTime;primaryKey"`
 	EventType string    `gorm:"primaryKey" binding:"required"`
-	UserID    uint64    `gorm:"primaryKey" binding:"required"`
+	ProfileID uint64    `gorm:"primaryKey" binding:"required"`
 	GameID    uint64    `gorm:"primaryKey" binding:"required"`
-	User      *User     `gorm:"foreignKey:UserID"`
+	Profile   *Profile  `gorm:"foreignKey:ProfileID"`
 	Game      *Game     `gorm:"foreignKey:GameID"`
 }
 
@@ -19,9 +19,9 @@ type Score struct {
 	CreatedAt  time.Time `gorm:"primaryKey;primaryKey" binding:"required"`
 	Fails      uint64    `gorm:"not null" binding:"required"`
 	MaxAllowed uint64    `binding:"required"`
-	UserID     uint64    `gorm:"primaryKey" binding:"required"`
+	ProfileID  uint64    `gorm:"primaryKey" binding:"required"`
 	GameID     uint64    `gorm:"primaryKey" binding:"required"`
-	User       *User     `gorm:"foreignKey:UserID"`
+	Profile    *Profile  `gorm:"foreignKey:ProfileID"`
 	Game       *Game     `gorm:"foreignKey:GameID"`
 }
 

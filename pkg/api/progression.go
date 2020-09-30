@@ -12,37 +12,37 @@ import (
 	"gorm.io/gorm"
 )
 
-// GetAllUsers returns the users as json in a gin context
-func GetAllUsers(c *gin.Context) {
-	users, err := controller.GetAllUsers()
+// GetAllProfiles returns the profiles as json in a gin context
+func GetAllProfiles(c *gin.Context) {
+	profiles, err := controller.GetAllProfiles()
 	if err == nil {
-		c.JSON(http.StatusOK, users)
+		c.JSON(http.StatusOK, profiles)
 	} else {
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
 }
 
-// GetUserByID returs the user with id as json in a gin context
-func GetUserByID(c *gin.Context) {
-	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
+// GetProfileByID returs the profile with id as json in a gin context
+func GetProfileByID(c *gin.Context) {
+	profileID, err := strconv.ParseUint(c.Param("profile_id"), 10, 32)
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	if user, err := controller.GetUserByID(userID); err == nil {
-		c.JSON(http.StatusOK, user)
+	if profile, err := controller.GetProfileByID(profileID); err == nil {
+		c.JSON(http.StatusOK, profile)
 	} else {
 		c.Status(http.StatusNotFound)
 	}
 }
 
-// NewUser creates a new user and returns it as Json in a gin context
-func NewUser(c *gin.Context) {
-	var user model.User
-	if controller.NewUser(&user) == nil {
-		c.JSON(http.StatusOK, user)
+// NewProfile creates a new profile and returns it as Json in a gin context
+func NewProfile(c *gin.Context) {
+	var profile model.Profile
+	if controller.NewProfile(&profile) == nil {
+		c.JSON(http.StatusOK, profile)
 	} else {
 		c.AbortWithStatus(http.StatusConflict)
 	}
@@ -106,25 +106,25 @@ func NewDifficulty(c *gin.Context) {
 	}
 }
 
-// GetUserProgression ...
-func GetUserProgression(c *gin.Context) {
-	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
+// GetProfileProgression ...
+func GetProfileProgression(c *gin.Context) {
+	profileID, err := strconv.ParseUint(c.Param("profile_id"), 10, 32)
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	if prog, err := controller.GetUserGameProgression(userID, c.Param("game_name")); err == nil {
+	if prog, err := controller.GetProfileGameProgression(profileID, c.Param("game_name")); err == nil {
 		c.JSON(http.StatusOK, prog)
 	} else {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
 }
 
-// SetUserProgression ...
-func SetUserProgression(c *gin.Context) {
-	var userID, difficultyID uint64
+// SetProfileProgression ...
+func SetProfileProgression(c *gin.Context) {
+	var profileID, difficultyID uint64
 	var jsonData map[string]interface{}
 	var gameName string = c.Param("game_name")
 
@@ -134,7 +134,7 @@ func SetUserProgression(c *gin.Context) {
 		return
 	}
 
-	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 32)
+	profileID, err := strconv.ParseUint(c.Param("profile_id"), 10, 32)
 	difficultyID = uint64(jsonData["difficulty"].(float64))
 
 	if err != nil {
@@ -142,7 +142,7 @@ func SetUserProgression(c *gin.Context) {
 		return
 	}
 
-	if err := controller.SetUserProgression(userID, difficultyID, gameName); err == nil {
+	if err := controller.SetProfileProgression(profileID, difficultyID, gameName); err == nil {
 		c.Status(http.StatusAccepted)
 	} else {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

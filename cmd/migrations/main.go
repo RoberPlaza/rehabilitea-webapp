@@ -15,9 +15,9 @@ import (
 
 var gameFile = flag.String("games", "data/games.json", "File with games data")
 var difficultyFile = flag.String("difficulties", "data/difficulties.json", "File with difficulties data")
-var handler = database.MainHandler
+var handler = database.Handler
 var modelsToMigrate = []interface{}{
-	model.User{},
+	model.Profile{},
 	model.Game{},
 	model.Difficulty{},
 	model.Event{},
@@ -35,15 +35,11 @@ func initHandler() {
 		EnableSSL: false,
 	}
 
-	if err := handler.InitPostgres(&connection); err != nil {
+	if err := database.InitPostConn(&connection); err != nil {
 		log.Fatal(err)
 	}
 
-	for _, model := range modelsToMigrate {
-		handler.AddModel(model)
-	}
-
-	if err := handler.Migrate(); err != nil {
+	if err := database.Migrate(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -76,7 +72,7 @@ func loadJSON() {
 			}
 		}
 	}
-	controller.NewUser(&model.User{})
+	controller.NewProfile(&model.Profile{})
 }
 
 func main() {

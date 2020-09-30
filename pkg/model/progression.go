@@ -6,8 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// User stores the information of a game participant
-type User struct {
+// Profile stores the information of a game participant
+type Profile struct {
 	gorm.Model
 	Birthday time.Time `json:"birthday"`
 }
@@ -27,10 +27,10 @@ type Difficulty struct {
 // Progression stores a step in the user progression
 type Progression struct {
 	CreatedAt    time.Time   `gorm:"autoCreateTime"`
-	UserID       uint64      `gorm:"primaryKey"`
+	ProfileID    uint64      `gorm:"primaryKey"`
 	GameID       uint64      `gorm:"primaryKey"`
 	DifficultyID uint64      `gorm:"primaryKey"`
-	User         *User       `gorm:"foreignKey:UserID"`
+	Profile      *Profile    `gorm:"foreignKey:ProfileID"`
 	Game         *Game       `gorm:"foreignKey:GameID"`
 	Difficulty   *Difficulty `gorm:"foreignKey:DifficultyID"`
 }
@@ -50,7 +50,7 @@ func (Progression) TableName() string {
 	return "progressions"
 }
 
-// TableName returns the db name for the table that stores the model "User"
-func (User) TableName() string {
-	return "users"
+// TableName returns the db name for the table that stores the model "Profile"
+func (Profile) TableName() string {
+	return "profiles"
 }

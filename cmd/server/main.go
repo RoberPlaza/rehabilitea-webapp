@@ -21,7 +21,7 @@ func main() {
 
 	r := gin.Default()
 
-	route.AddUserRoutes("/user", r)
+	route.AddProfileRoutes("/profile", r)
 	route.AddGameRoutes("/game", r)
 	route.AddCreationRoutes("/new", r)
 	route.AddProgressionRoutes("/difficulty", r)

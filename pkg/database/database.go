@@ -75,7 +75,7 @@ func initMySQL(conn *Connection) {
 // Migrate migrates all the models
 func Migrate() (err error) {
 	models := []interface{}{
-		model.User{},
+		model.Profile{},
 		model.Game{},
 		model.Difficulty{},
 		model.Event{},

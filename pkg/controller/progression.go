@@ -5,19 +5,19 @@ import (
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/model"
 )
 
-// GetAllUsers returns all user models
-func GetAllUsers() (users []model.User, err error) {
-	return users, database.Handler.Find(&users).Error
+// GetAllProfiles returns all profile models
+func GetAllProfiles() (profiles []model.Profile, err error) {
+	return profiles, database.Handler.Find(&profiles).Error
 }
 
-// GetUserByID returs the user with a given id if possible
-func GetUserByID(id uint64) (user model.User, err error) {
-	return user, database.Handler.First(&user, id).Error
+// GetProfileByID returs the profile with a given id if possible
+func GetProfileByID(id uint64) (profile model.Profile, err error) {
+	return profile, database.Handler.First(&profile, id).Error
 }
 
-// NewUser inserts the user into the database
-func NewUser(user *model.User) (err error) {
-	err = database.Handler.Create(&user).Error
+// NewProfile inserts the profile into the database
+func NewProfile(profile *model.Profile) (err error) {
+	err = database.Handler.Create(&profile).Error
 
 	if err == nil {
 		var diff model.Difficulty
@@ -32,7 +32,7 @@ func NewUser(user *model.User) (err error) {
 		}
 
 		for _, game := range games {
-			UpdateUserProgression(user, &game, &diff)
+			UpdateProfileProgression(profile, &game, &diff)
 		}
 	}
 
@@ -64,12 +64,12 @@ func NewDifficulty(diff *model.Difficulty) (err error) {
 	return database.Handler.Create(diff).Error
 }
 
-// GetUserGameProgression returns the progression of a user in a game
-func GetUserGameProgression(userID uint64, gameName string) (prog model.Progression, err error) {
-	var user model.User
+// GetProfileGameProgression returns the progression of a profile in a game
+func GetProfileGameProgression(profileID uint64, gameName string) (prog model.Progression, err error) {
+	var profile model.Profile
 	var game model.Game
 
-	if user, err = GetUserByID(userID); err != nil {
+	if profile, err = GetProfileByID(profileID); err != nil {
 		return prog, err
 	}
 
@@ -80,18 +80,18 @@ func GetUserGameProgression(userID uint64, gameName string) (prog model.Progress
 	return prog, database.Handler.
 		Order("created_at desc").
 		Find(&prog,
-			"user_id = ?", user.ID,
+			"profile_id = ?", profile.ID,
 			"game_id = ?", game.ID,
 		).Error
 }
 
-// SetUserProgression sets the difficulty of a game for a user
-func SetUserProgression(userID, difficultyID uint64, gameName string) (err error) {
-	var user model.User
+// SetProfileProgression sets the difficulty of a game for a profile
+func SetProfileProgression(profileID, difficultyID uint64, gameName string) (err error) {
+	var profile model.Profile
 	var game model.Game
 	var difficulty model.Difficulty
 
-	if user, err = GetUserByID(userID); err != nil {
+	if profile, err = GetProfileByID(profileID); err != nil {
 		return err
 	}
 
@@ -103,13 +103,13 @@ func SetUserProgression(userID, difficultyID uint64, gameName string) (err error
 		return err
 	}
 
-	return UpdateUserProgression(&user, &game, &difficulty)
+	return UpdateProfileProgression(&profile, &game, &difficulty)
 }
 
-// UpdateUserProgression sets the difficulty of a game for a user
-func UpdateUserProgression(user *model.User, game *model.Game, difficulty *model.Difficulty) error {
+// UpdateProfileProgression sets the difficulty of a game for a profile
+func UpdateProfileProgression(profile *model.Profile, game *model.Game, difficulty *model.Difficulty) error {
 	return database.Handler.Create(&model.Progression{
-		User:       user,
+		Profile:    profile,
 		Game:       game,
 		Difficulty: difficulty,
 	}).Error
