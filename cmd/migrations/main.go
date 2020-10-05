@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/RoberPlaza/rehabilitea-webapp/pkg/auth"
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/common"
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/logging"
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/progression"
@@ -23,6 +24,7 @@ var modelsToMigrate = []interface{}{
 	progression.Progression{},
 	logging.Event{},
 	logging.Score{},
+	auth.User{},
 }
 
 func initHandler() {

@@ -1,0 +1,13 @@
+[
+    {
+        "username": "random_user",
+        "email": "rplazaromero@outlook.com",
+        "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+        "comment": "The hassed password is 'password', don't waste your time with hashcat"
+    },{
+        "username": "nother_user",
+        "email": "Roberto.Plaza@alu.uclm.es",
+        "password": "6cf615d5bcaac778352a8f1f3360d23f02f34ec182e259897fd6ce485d7870d4",
+        "comment": "This time the password is 'password2'"
+    }
+]
