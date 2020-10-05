@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/common"
+	"github.com/RoberPlaza/rehabilitea-webapp/pkg/logging"
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/progression"
 )
 
@@ -20,6 +21,8 @@ var modelsToMigrate = []interface{}{
 	progression.Game{},
 	progression.Difficulty{},
 	progression.Progression{},
+	logging.Event{},
+	logging.Score{},
 }
 
 func initHandler() {
@@ -40,36 +43,47 @@ func initHandler() {
 	}
 }
 
-func loadJSON() {
-	var games []map[string]string
-	var difficulties []map[string]string
+func loadJSON(filePath string) (result []map[string]interface{}, err error) {
+	jsonFile, err := os.Open(filePath)
+	if err != nil {
+		return result, err
+	}
+	defer jsonFile.Close()
 
-	if file, err := ioutil.ReadFile(*gameFile); err == nil {
-		if json.Unmarshal([]byte(file), &games) != nil {
-			panic(fmt.Sprintf("%v", file))
-		}
-
-		for _, game := range games {
-			if err := progression.NewGame(&progression.Game{Name: game["name"]}); err != nil {
-				log.Fatal(err)
-			} else {
-				log.Printf("Game %s inserted\n", game["name"])
-			}
-		}
+	jsonBytes, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		return result, err
 	}
 
-	if file, err := ioutil.ReadFile(*difficultyFile); err == nil {
-		if err := json.Unmarshal([]byte(file), &difficulties); err != nil {
-			log.Fatal(err)
-		}
+	json.Unmarshal([]byte(jsonBytes), &result)
 
+	return result, err
+}
+
+func insertJSON() {
+	if games, err := loadJSON(*gameFile); err == nil {
+		for _, game := range games {
+			gameName := string(game["name"].(string))
+			if err := common.GetDatabase().Create(&progression.Game{Name: gameName}).Error; err != nil {
+				log.Fatal(err)
+			} else {
+				log.Printf("Game %s has been inserted\n", gameName)
+			}
+		}
+	} else {
+		log.Fatal(err)
+	}
+
+	if difficulties, err := loadJSON(*difficultyFile); err == nil {
 		for _, difficulty := range difficulties {
-			if err := progression.NewDifficulty(&progression.Difficulty{Name: difficulty["name"]}); err != nil {
+			if err := common.GetDatabase().Create(&progression.Difficulty{Name: string(difficulty["name"].(string))}).Error; err != nil {
 				log.Fatal(err)
 			} else {
 				log.Printf("Difficulty %s inserted\n", difficulty["name"])
 			}
 		}
+	} else {
+		log.Fatal(err)
 	}
 }
 
@@ -79,12 +93,12 @@ func main() {
 	log.Printf("Starting migration")
 	start := time.Now()
 	initHandler()
-	log.Printf("Migration complete in %s", time.Since(start))
+	log.Printf("Migration completed in %s", time.Since(start))
 
 	log.Printf("Loading Json")
 	start = time.Now()
-	loadJSON()
+	insertJSON()
 	log.Printf("Initial data loaded in %s", time.Since(start))
 
-	progression.NewProfile(&progression.Profile{})
+	common.GetDatabase().Create(&progression.Profile{})
 }

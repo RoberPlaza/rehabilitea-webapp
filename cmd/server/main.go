@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/common"
+	"github.com/RoberPlaza/rehabilitea-webapp/pkg/logging"
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/progression"
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +22,8 @@ func main() {
 
 	r := gin.Default()
 
+	logging.RegisterEventRoutes(r.Group("/events"))
+	logging.RegisterScoreRoutes(r.Group("/scores"))
 	progression.RegisterGameGroup(r.Group("/games"))
 	progression.RegisterProfileGroup(r.Group("/profiles"))
 	progression.RegisterCreationGroup(r.Group("/new"))
