@@ -8,25 +8,22 @@ import (
 	"log"
 	"time"
 
-	"github.com/RoberPlaza/rehabilitea-webapp/pkg/controller"
-	"github.com/RoberPlaza/rehabilitea-webapp/pkg/database"
-	"github.com/RoberPlaza/rehabilitea-webapp/pkg/model"
+	"github.com/RoberPlaza/rehabilitea-webapp/pkg/common"
+	"github.com/RoberPlaza/rehabilitea-webapp/pkg/progression"
 )
 
+var database = common.GetDatabase()
 var gameFile = flag.String("games", "data/games.json", "File with games data")
 var difficultyFile = flag.String("difficulties", "data/difficulties.json", "File with difficulties data")
-var handler = database.Handler
 var modelsToMigrate = []interface{}{
-	model.Profile{},
-	model.Game{},
-	model.Difficulty{},
-	model.Event{},
-	model.Progression{},
-	model.Score{},
+	progression.Profile{},
+	progression.Game{},
+	progression.Difficulty{},
+	progression.Progression{},
 }
 
 func initHandler() {
-	connection := database.Connection{
+	connection := common.DatabaseConnection{
 		Host:      "localhost",
 		User:      "postgres",
 		Schema:    "postgres",
@@ -38,16 +35,14 @@ func initHandler() {
 	if err := database.InitPostConn(&connection); err != nil {
 		log.Fatal(err)
 	}
-
-	if err := database.Migrate(); err != nil {
-		log.Fatal(err)
+	for _, model := range modelsToMigrate {
+		database.AutoMigrate(model)
 	}
-
 }
 
 func loadJSON() {
-	var games []model.Game
-	var difficulties []model.Difficulty
+	var games []map[string]string
+	var difficulties []map[string]string
 
 	if file, err := ioutil.ReadFile(*gameFile); err == nil {
 		if json.Unmarshal([]byte(file), &games) != nil {
@@ -55,24 +50,27 @@ func loadJSON() {
 		}
 
 		for _, game := range games {
-			if controller.NewGame(&game) != nil {
-				panic(game)
+			if err := progression.NewGame(&progression.Game{Name: game["name"]}); err != nil {
+				log.Fatal(err)
+			} else {
+				log.Printf("Game %s inserted\n", game["name"])
 			}
 		}
 	}
 
 	if file, err := ioutil.ReadFile(*difficultyFile); err == nil {
-		if json.Unmarshal([]byte(file), &difficulties) != nil {
-			panic(fmt.Sprintf("%v", file))
+		if err := json.Unmarshal([]byte(file), &difficulties); err != nil {
+			log.Fatal(err)
 		}
 
 		for _, difficulty := range difficulties {
-			if controller.NewDifficulty(&difficulty) != nil {
-				panic(difficulty)
+			if err := progression.NewDifficulty(&progression.Difficulty{Name: difficulty["name"]}); err != nil {
+				log.Fatal(err)
+			} else {
+				log.Printf("Difficulty %s inserted\n", difficulty["name"])
 			}
 		}
 	}
-	controller.NewProfile(&model.Profile{})
 }
 
 func main() {
@@ -87,4 +85,6 @@ func main() {
 	start = time.Now()
 	loadJSON()
 	log.Printf("Initial data loaded in %s", time.Since(start))
+
+	progression.NewProfile(&progression.Profile{})
 }

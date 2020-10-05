@@ -1,4 +1,4 @@
-package database
+package common
 
 import (
 	"fmt"
@@ -6,14 +6,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/RoberPlaza/rehabilitea-webapp/pkg/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-// Connection stores the information of a connection
-type Connection struct {
+// DatabaseConnection stores the information of a connection
+type DatabaseConnection struct {
 	Host      string
 	User      string
 	Password  string
@@ -22,11 +21,21 @@ type Connection struct {
 	EnableSSL bool
 }
 
-// Handler of the Database
-var Handler *gorm.DB
+// Database abstracts a database
+type Database struct {
+	*gorm.DB
+}
 
-// GetPostgresString returns the connection string for a Postgres database
-func (dc *Connection) GetPostgresString() string {
+// Handler of the Database
+var handler Database
+
+// GetDatabase returns the database
+func GetDatabase() *Database {
+	return &handler
+}
+
+// GetPostgresString returns the databaseconnection string for a Postgres database
+func (dc *DatabaseConnection) GetPostgresString() string {
 	baseFormat := "host=%s user=%s password=%s dbname=%s port=%d sslmode=disable"
 	if dc.EnableSSL {
 		baseFormat = "host=%s user=%s password=%s dbname=%s port=%d sslmode=enable"
@@ -42,8 +51,8 @@ func (dc *Connection) GetPostgresString() string {
 	)
 }
 
-// GetMySQLString returns the connection string for a MySQL database
-func (dc *Connection) GetMySQLString() string {
+// GetMySQLString returns the databaseconnection string for a MySQL database
+func (dc *DatabaseConnection) GetMySQLString() string {
 	return fmt.Sprintf(
 		"%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True",
 		dc.User,
@@ -55,51 +64,24 @@ func (dc *Connection) GetMySQLString() string {
 }
 
 // initPostgres initializes a db handler with a pg database
-func initPostgres(conn *Connection) {
-	var err error
-	Handler, err = gorm.Open(postgres.Open(conn.GetPostgresString()), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
+func (database *Database) initPostgres(conn *DatabaseConnection) (err error) {
+	database.DB, err = gorm.Open(postgres.Open(conn.GetPostgresString()), &gorm.Config{})
+	return err
 }
 
 // initMySQL initializes a db handler with a mysql database
-func initMySQL(conn *Connection) {
-	var err error
-	Handler, err = gorm.Open(mysql.Open(conn.GetMySQLString()), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-}
-
-// Migrate migrates all the models
-func Migrate() (err error) {
-	models := []interface{}{
-		model.Profile{},
-		model.Game{},
-		model.Difficulty{},
-		model.Event{},
-		model.Progression{},
-		model.Score{},
-	}
-
-	for _, model := range models {
-		if err = Handler.AutoMigrate(model); err != nil {
-			return err
-		}
-	}
-
+func (database *Database) initMySQL(conn *DatabaseConnection) (err error) {
+	database.DB, err = gorm.Open(mysql.Open(conn.GetMySQLString()), &gorm.Config{})
 	return err
 }
 
 // InitPostConn initializes the databse as postgress using a connection
-func InitPostConn(conn *Connection) error {
-	initPostgres(conn)
-	return Migrate()
+func (database *Database) InitPostConn(conn *DatabaseConnection) error {
+	return database.initPostgres(conn)
 }
 
 // InitEnv initializes the database with environment variables
-func InitEnv() error {
+func (database *Database) InitEnv() error {
 	dbPort, err := strconv.ParseUint(os.Getenv("DB_PORT"), 10, 32)
 	if err != nil {
 		return err
@@ -110,7 +92,7 @@ func InitEnv() error {
 		return err
 	}
 
-	conn := &Connection{
+	conn := &DatabaseConnection{
 		Host:      os.Getenv("DB_HOST"),
 		Password:  os.Getenv("DB_PASS"),
 		Schema:    os.Getenv("DB_SCHEMA"),
@@ -122,14 +104,14 @@ func InitEnv() error {
 	switch strings.ToLower(os.Getenv("DB_ENGINE")) {
 	case "mysql":
 	case "mariadb":
-		initMySQL(conn)
+		database.initMySQL(conn)
 		break
 	case "postgres":
 	case "postgresql":
 	default:
-		initPostgres(conn)
+		database.initPostgres(conn)
 		break
 	}
 
-	return Migrate()
+	return nil
 }
