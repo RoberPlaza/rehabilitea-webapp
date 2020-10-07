@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/auth"
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/common"
 	"github.com/RoberPlaza/rehabilitea-webapp/pkg/logging"
@@ -15,6 +17,7 @@ import (
 )
 
 var database = common.GetDatabase()
+var userFile = flag.String("users", "data/users.json", " File with the data of the initial users")
 var gameFile = flag.String("games", "data/games.json", "File with games data")
 var difficultyFile = flag.String("difficulties", "data/difficulties.json", "File with difficulties data")
 var modelsToMigrate = []interface{}{
@@ -86,6 +89,22 @@ func insertJSON() {
 		}
 	} else {
 		log.Fatal(err)
+	}
+
+	if users, err := loadJSON(*userFile); err == nil {
+		for _, user := range users {
+			password, _ := bcrypt.GenerateFromPassword([]byte(user["password"].(string)), bcrypt.MinCost)
+			if err := common.GetDatabase().Create(
+				&auth.User{
+					Username: user["username"].(string),
+					Mail:     user["email"].(string),
+					Password: password,
+				}).Error; err != nil {
+				log.Fatal(err)
+			} else {
+				log.Printf("User %s inserted\n", user["username"])
+			}
+		}
 	}
 }
 
