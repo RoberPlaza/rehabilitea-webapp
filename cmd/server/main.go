@@ -23,7 +23,7 @@ func main() {
 
 	base := gin.Default()
 	auth := auth.DefaultJWT()
-	r := base.Group("/")
+	r := base.Group("")
 
 	base.GET("/refresh-token", auth.RefreshHandler)
 	base.POST("/login", auth.LoginHandler)

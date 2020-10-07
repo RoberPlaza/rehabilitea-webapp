@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log"
 	"os"
 	"time"
 
@@ -63,11 +64,13 @@ func Authenticate(c *gin.Context) (interface{}, error) {
 		return "", jwt.ErrMissingLoginValues
 	}
 
-	if common.GetDatabase().First(&user, "email = ?", data.Mail).Error != nil {
-		return nil, jwt.ErrInvalidAuthHeader
+	if err := common.GetDatabase().First(&user, "mail = ?", data.Mail).Error; err != nil {
+		return nil, jwt.ErrFailedAuthentication
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data.Password)); err != nil {
+		otherPass, _ := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.MinCost)
+		log.Printf("user-pass: %s\ntarget-pass: %s\n", user.Password, otherPass)
 		return nil, jwt.ErrFailedAuthentication
 	}
 
