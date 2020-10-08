@@ -31,16 +31,7 @@ var modelsToMigrate = []interface{}{
 }
 
 func initHandler() {
-	connection := common.DatabaseConnection{
-		Host:      "localhost",
-		User:      "postgres",
-		Schema:    "postgres",
-		Password:  "postgres",
-		Port:      5432,
-		EnableSSL: false,
-	}
-
-	if err := database.InitPostConn(&connection); err != nil {
+	if err := database.InitEnv(); err != nil {
 		log.Fatal(err)
 	}
 	for _, model := range modelsToMigrate {

@@ -14,14 +14,7 @@ import (
 
 func main() {
 	database := common.GetDatabase()
-	database.InitPostConn(&common.DatabaseConnection{
-		Host:      "localhost",
-		User:      "postgres",
-		Schema:    "postgres",
-		Password:  "postgres",
-		EnableSSL: false,
-		Port:      5432,
-	})
+	database.InitEnv()
 
 	base := gin.Default()
 	jwtAuth := auth.DefaultJWT()
