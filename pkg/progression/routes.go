@@ -14,12 +14,10 @@ func RegisterGameGroup(games *gin.RouterGroup) {
 	games.GET("/:game_name", GameByNameView)
 }
 
-// RegisterProgressionGroup adds the progression path to a gin group
-func RegisterProgressionGroup(progressions *gin.RouterGroup) {
+// RegisterGetProgressionGroup adds the progression path to a gin group
+func RegisterGetProgressionGroup(progressions *gin.RouterGroup) {
 	progressions.GET("/", AllDifficultiesView)
 	progressions.GET("/:profile_id/:game_name", ProfileProgressionView)
-
-	progressions.POST("/:profile_id/:game_name", SetProfileProgressionView)
 }
 
 // RegisterCreationGroup ...
@@ -37,4 +35,9 @@ func RegisterCreationGroup(creations *gin.RouterGroup) {
 func RegisterDifficultyGroup(difficulties *gin.RouterGroup) {
 	difficulties.GET("/", AllDifficultiesView)
 	difficulties.GET("/:difficulty_name", DifficultyByNameView)
+}
+
+// RegisterPostProgressionGroup ...
+func RegisterPostProgressionGroup(progressions *gin.RouterGroup) {
+	progressions.POST("/:profile_id/:game_name", SetProfileProgressionView)
 }

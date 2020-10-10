@@ -17,13 +17,18 @@ func main() {
 	database.InitEnv()
 
 	base := gin.Default()
-	jwtAuth := auth.DefaultJWT()
-	r := base.Group("")
+	userAuthGroup := base.Group("")
+	profileAuthGroup := base.Group("")
 
-	base.GET("/refresh-token", jwtAuth.RefreshHandler)
-	base.POST("/login", jwtAuth.LoginHandler)
+	userAuth := auth.DefaultJWT()
+	profileAuth := progression.DefaultJWT()
 
-	r.Use(jwtAuth.MiddlewareFunc())
+	base.GET("/refresh-token", userAuth.RefreshHandler)
+	base.GET("/profile/login", profileAuth.LoginHandler)
+	base.POST("/user/login", userAuth.LoginHandler)
+
+	userAuthGroup.Use(userAuth.MiddlewareFunc())
+	profileAuthGroup.Use(profileAuth.MiddlewareFunc())
 	base.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowHeaders:     []string{"*"},
@@ -37,13 +42,14 @@ func main() {
 	}))
 
 	auth.RegisterUserGroup(base.Group("/auth"))
-	logging.RegisterEventRoutes(r.Group("/events"))
-	logging.RegisterScoreRoutes(r.Group("/scores"))
-	progression.RegisterGameGroup(r.Group("/games"))
-	progression.RegisterProfileGroup(r.Group("/profiles"))
-	progression.RegisterCreationGroup(r.Group("/new"))
-	progression.RegisterDifficultyGroup(r.Group("/difficulties"))
-	progression.RegisterProgressionGroup(r.Group("/progression"))
+	logging.RegisterEventRoutes(userAuthGroup.Group("/events"))
+	logging.RegisterScoreRoutes(userAuthGroup.Group("/scores"))
+	progression.RegisterGameGroup(userAuthGroup.Group("/games"))
+	progression.RegisterProfileGroup(userAuthGroup.Group("/profiles"))
+	progression.RegisterCreationGroup(userAuthGroup.Group("/new"))
+	progression.RegisterDifficultyGroup(userAuthGroup.Group("/difficulties"))
+	progression.RegisterGetProgressionGroup(userAuthGroup.Group("/progression"))
+	progression.RegisterPostProgressionGroup(profileAuthGroup.Group("/progression"))
 
 	log.Fatal(base.Run())
 }
