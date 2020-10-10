@@ -15,6 +15,6 @@ FROM scratch
 WORKDIR /app
 COPY --from=builder /build /app
 
-ADD data/ /data
+ADD data/ /app/data
 
-CMD ["/app/migrations --users /data/users.json --games /data/games.json --difficulties /data/difficulties.json"]
+CMD ["/app/migrations"] 
