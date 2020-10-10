@@ -24,6 +24,13 @@ type Difficulty struct {
 	Name string `json:"name" gorm:"unique;not null" binding:"required"`
 }
 
+// Session stores the session of the user
+type Session struct {
+	Day       time.Time `gorm:"prikmaryKey;autoCreateTime"`
+	ProfileID uint      `gorm:"primaryKey"`
+	Profile   *Profile  `gorm:"foreightKey:ProfileID"`
+}
+
 // Progression stores a step in the user progression
 type Progression struct {
 	CreatedAt    time.Time   `gorm:"autoCreateTime"`
