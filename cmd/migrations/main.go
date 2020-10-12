@@ -35,7 +35,9 @@ func initHandler() {
 		log.Fatal(err)
 	}
 	for _, model := range modelsToMigrate {
-		database.AutoMigrate(model)
+		if err := database.AutoMigrate(model); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

@@ -101,17 +101,10 @@ func (database *Database) InitEnv() error {
 		EnableSSL: dbSSL,
 	}
 
-	switch strings.ToLower(os.Getenv("DB_ENGINE")) {
-	case "mysql":
-	case "mariadb":
-		database.initMySQL(conn)
-		break
-	case "postgres":
-	case "postgresql":
+	switch dbEngine := strings.ToLower(os.Getenv("DB_ENGINE")); dbEngine {
+	case "mysql", "mariadb":
+		return database.initMySQL(conn)
 	default:
-		database.initPostgres(conn)
-		break
+		return database.initPostgres(conn)
 	}
-
-	return nil
 }

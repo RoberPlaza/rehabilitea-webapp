@@ -17,6 +17,7 @@ services:
       ports:
         - 8080:8080
       environment:
+        - DB_PASS=postgres
         - DB_USER=postgres
         - DB_SCHEMA=postgres
         - DB_HOST=database

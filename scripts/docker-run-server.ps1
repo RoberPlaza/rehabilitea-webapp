@@ -1,0 +1,2 @@
+docker build -t rehabilitea-server -f .\server.dockerfile .
+docker run -e DB_ENGINE=postgres -e DB_USER=postgres -e DB_SCHEMA=postgres -e DB_HOST=0.0.0.0 -e DB_SSL=false -e DB_PORT=5432 -e DB_PASS=postgres -p 8080 --network host rehabilitea-server

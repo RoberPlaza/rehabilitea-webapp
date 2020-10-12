@@ -68,7 +68,7 @@ func Authenticate(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrFailedAuthentication
 	}
 
-	if err := common.GetDatabase().First(&lastSession, "profile_id = ?", profile.ID, "").Order("day desc").Error; err != nil {
+	if err := common.GetDatabase().Find(&lastSession, "profile_id = ?", profile.ID, "").Order("day desc").Error; err != nil {
 		return nil, jwt.ErrFailedAuthentication
 	}
 
